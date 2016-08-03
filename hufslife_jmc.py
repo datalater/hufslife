@@ -1,7 +1,8 @@
 import requests
 import getpass
 from bs4 import BeautifulSoup
-
+import re
+import time
 
 #id, pw 미리 입력
 yourid="doshiro"
@@ -34,8 +35,18 @@ params={
 #로그인 url에 POST 방식으로 사이트 오픈
 r=session.post("http://www.hufslife.com/index.php",params)
 
-r=session.get("http://www.hufslife.com/?mid=main&act=dispMemberInfo")
-html=BeautifulSoup(r.text,"html.parser")
+for i in range(5):
+  r=session.get("http://www.hufslife.com/?mid=job&page={0}".format(i))
+  html=BeautifulSoup(r.text,"html.parser")
 
-for username in html.td:
-  print(username)
+  for review_title in html.find_all(string=re.compile("후기")):
+    review_num = review_title.parent.parent.previous_sibling.previous_sibling.string
+    review_author = review_title.parent.parent.next_sibling.next_sibling.string
+    review_date = review_title.parent.parent.next_sibling.next_sibling.next_sibling.string
+    print(review_num+"|"+review_title+"|"+str(type(review_author))+"|"+str(type(review_date)))
+    
+
+# review_title(ResultSet): html.find_all(string=re.compile("후기"))
+# review_num: review_title.parent.parent.previous_sibling.previous_sibling.string
+# review_date: 
+# review_author:
